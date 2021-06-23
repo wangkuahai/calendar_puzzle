@@ -3,13 +3,21 @@
 using namespace std;
 
 #define PUZZLE_NUM 8
+//map的高和宽
+#define MAP_HIGHT 7
+#define MAP_WIDTH 7
+
 //地图上保留的空缺墙体
 #define WALL 820
 //地图上保留的日期空位
 #define MONTH 74
 #define DAY 75
-#define MAP_WIDTH 7
-#define MAP_HIGHT 7
+
+//最小拼图块的大小，优化用
+#define MIN_PUZZLE 5
+
+//解日历拼图的宏定义，取消后可适用其他拼图，要先修改init函数里的拼图块
+#define FOR_CALENDAR
 
 // #define DEBUG
 
@@ -143,19 +151,28 @@ public:
 
 class Map{
 public:
-    int map[7][7];
+    int map[MAP_HIGHT][MAP_WIDTH];
     Map(){
-        for(int i=0;i<7;i++){
-            for(int j=0;j<7;j++){
+        for(int i=0;i<MAP_HIGHT;i++){
+            for(int j=0;j<MAP_WIDTH;j++){
                 map[i][j]=0;
             }
         }
+#ifdef FOR_CALENDAR
         map[0][6]=WALL;
         map[1][6]=WALL;
         map[6][3]=WALL;
         map[6][4]=WALL;
         map[6][5]=WALL;
         map[6][6]=WALL;
+#endif
+    }
+    Map(const Map& m){
+        for(int i=0;i<MAP_HIGHT;i++){
+            for(int j=0;j<MAP_WIDTH;j++){
+                map[i][j]=m.map[i][j];
+            }
+        }
     }
     //设置日期，检查是否合法
     bool setDate(int month,int day){
@@ -179,23 +196,39 @@ public:
             return false;
         }
         
-        map[month/7][(month-1)%6]=MONTH;
-        map[day/8+2][(day-1)%7]=DAY;
+        map[(month-1)/6][(month-1)%6]=MONTH;
+        map[(day-1)/7+2][(day-1)%7]=DAY;
         return true;
     }
     void show(){
-        for(int i=0;i<7;i++){
-            for(int j=0;j<7;j++){
-                print_block(map[i][j]);
+        for(int i=0;i<MAP_HIGHT;i++){
+            for(int j=0;j<MAP_WIDTH;j++){
+                if(map[i][j]==MONTH){
+                    int month=i*6+j+1;
+                    if(month<10)cout<<' ';
+                    cout<<month;
+                }
+                else if(map[i][j]==DAY){
+                    int day=(i-2)*7+j+1;
+                    if(day<10)cout<<' ';
+                    cout<<day;
+                }
+                else
+                    print_block(map[i][j]);
             }
             cout<<endl;
         }
     }
     /*
     检查地图，提前剪枝一些不可能求解的情况
-    1. 出现一格0，但它上下左右没有别的0与它相连
+    1. 出现小于最小拼图块大小的联通区域
     */
-    void checkMap(){
+    bool checkMap(){
+        bool ret=true;
+        #ifndef MIN_PUZZLE
+        return ret;
+        #endif
+
 
     }
 };
@@ -285,7 +318,7 @@ public:
     //如果能放置，则放置，设置map对应区域和shape_index,x,y
     bool check(Map* map,int x,int y,int index){
         Shape* shape=all_shapes[index];
-        if(y+shape->hight>7 || x+shape->width>7){
+        if(y+shape->hight>MAP_HIGHT || x+shape->width>MAP_WIDTH){
             return false;
         }
         //本块不为0的坐标，map上要为0
