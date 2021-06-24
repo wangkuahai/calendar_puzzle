@@ -1,5 +1,8 @@
 #include<iostream>
 #include<vector>
+#include<ctime>
+#include<string>
+#include<regex>
 using namespace std;
 
 #define PUZZLE_NUM 8
@@ -36,7 +39,7 @@ void print_block(int id){
     case 2:
         printf("\033[43m  \33[40m");
         break;
-    case 3:
+    case 7:
         printf("\033[44m  \33[40m");
         break;
     case 4:
@@ -48,7 +51,7 @@ void print_block(int id){
     case 6:
         printf("\033[47m  \33[40m");
         break;
-    case 7:
+    case 3:
         printf("\033[41m()\33[40m");
         break;
     case MONTH:
@@ -182,7 +185,7 @@ public:
             max_day=31;
         }
         else if(month==2){
-            max_day=28;
+            max_day=29;
         }
         else if(month==4||month==6||month==9||month==11){
             max_day=30;
