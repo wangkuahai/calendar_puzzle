@@ -222,6 +222,30 @@ public:
             cout<<endl;
         }
     }
+    //展示编号从start到end的所有拼板
+    void show(int start,int end){
+        for(int i=0;i<MAP_HIGHT;i++){
+            for(int j=0;j<MAP_WIDTH;j++){
+                if(map[i][j]==MONTH){
+                    int month=i*6+j+1;
+                    if(month<10)cout<<' ';
+                    cout<<month;
+                }
+                else if(map[i][j]==DAY){
+                    int day=(i-2)*7+j+1;
+                    if(day<10)cout<<' ';
+                    cout<<day;
+                }
+                else if(map[i][j]>=start&&map[i][j]<=end){
+                    print_block(map[i][j]);
+                }
+                else{
+                    print_empty();
+                }
+            }
+            cout<<endl;
+        }
+    }
     /*
     检查地图，提前剪枝一些不可能求解的情况
     1. 出现小于最小拼图块大小的联通区域

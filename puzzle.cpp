@@ -1,6 +1,5 @@
 #include "puzzle.h"
 
-int stack_index=0;//当前待放置的拼图序号
 Puzzle puzzles[PUZZLE_NUM];
 Map origin_map;
 
@@ -65,8 +64,10 @@ void init(){
     }
 }
 
+
 void searchAllRes(vector<Map> &res_list){
     Map map(origin_map);
+    int stack_index=0;//当前待放置的拼图序号
     //逐一为拼图块选好位置和形状，如果遇到无处安放的块，则回溯
     bool back=false;//回溯标志
     int back_count=0;
@@ -140,10 +141,14 @@ void searchAllRes(vector<Map> &res_list){
     showAllRes(res_list);
 }
 
-void searchOneRes(){
+void searchOneRes(bool back,int stack_index){
     Map map(origin_map);
+    //构建map
+    for(int i=0;i<stack_index;i++){
+        puzzles[i].check(&map,puzzles[i].x,puzzles[i].y,puzzles[i].shape_index);
+    }
+
     //逐一为拼图块选好位置和形状，如果遇到无处安放的块，则回溯
-    bool back=false;//回溯标志
     int back_count=0;
     while(stack_index<PUZZLE_NUM&&stack_index>=0){
         //初始化
@@ -196,12 +201,20 @@ void searchOneRes(){
     map.show();
 }
 
+//调用searchOneRes后再调用本函数，将会找到下一个解,或者返回无解
+void searchAnotherRes(){
+    searchOneRes(true,PUZZLE_NUM-2);
+}
+
 int main(){
     cout<<"====为了保证输出格式正确，请尽量放大本窗口，或者全屏===="<<endl;
     init();
     
     //初始化公共map
 #ifdef FOR_CALENDAR
+    int state=0;//状态标志
+    int solution_index=0;//展示一个解解序号
+    int puzzle_index=0;//单步提示拼板序号
     cout<<"今天是几月几日呢？(´･ω･`)? （月份日期用单独的空格分开，例如\"7 4\"表示七月四日）"<<endl;
     string input;
     int month,day;
@@ -221,8 +234,9 @@ int main(){
     vector<Map> res_list;
     time_t start,end;
     time(&start);
-    // searchAllRes(res_list);
-    searchOneRes();
+    searchAllRes(res_list);
+    searchOneRes(false,0);
+    searchAnotherRes();
     time(&end);
     cout<<"用时: "<<end-start<<"s"<<endl;
     
